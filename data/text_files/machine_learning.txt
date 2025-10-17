@@ -1,0 +1,6 @@
+What is Machine Learning
+
+Machine Learning is a branch of artificial intelligence that enables computers to learn from data and improve their performance without being explicitly programmed. It focuses on creating models that can recognize patterns, make predictions, or take decisions based on past information.
+
+In short:
+Machine Learning helps computers learn automatically from data and make intelligent predictions or decisions.

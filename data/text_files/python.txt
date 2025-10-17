@@ -1,0 +1,6 @@
+What is Python
+
+Python is a high-level, interpreted programming language known for its simplicity and readability. It allows developers to write clear and logical code for both small and large projects. Python supports multiple programming paradigms, including object-oriented, functional, and procedural programming. It’s widely used in web development, data science, artificial intelligence, machine learning, and automation.
+
+In short:
+Python is an easy-to-learn, versatile, and powerful language used across various fields of software development.

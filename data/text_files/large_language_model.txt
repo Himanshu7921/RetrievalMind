@@ -1,0 +1,6 @@
+What is a Large Language Model (LLM)
+
+A Large Language Model is an advanced type of AI trained on massive amounts of text data to understand and generate human-like language. It can answer questions, write content, translate languages, and assist in various tasks involving natural language.
+
+In short:
+A Large Language Model understands and generates text like humans by learning from vast text data.
