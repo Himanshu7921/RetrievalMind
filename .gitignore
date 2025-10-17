@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+data/vector_store/
+.env
+trying.ipynb
+structure.txt
