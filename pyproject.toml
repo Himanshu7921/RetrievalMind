@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "RetrievalMind"
+version = "0.1.0"
+authors = [
+  { name="Himanshu Singh", email="himanshu@example.com" }
+]
+description = "A custom Retrieval-Augmented Generation (RAG) framework for AI Agent applications."
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+  "langchain",
+  "chromadb",
+  "sentence-transformers",
+  "PyMuPDF"
+]
