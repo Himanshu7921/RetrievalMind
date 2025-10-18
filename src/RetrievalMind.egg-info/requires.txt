@@ -1,4 +1,0 @@
-langchain
-chromadb
-sentence-transformers
-PyMuPDF
