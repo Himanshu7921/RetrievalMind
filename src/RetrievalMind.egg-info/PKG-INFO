@@ -1,0 +1,179 @@
+Metadata-Version: 2.1
+Name: RetrievalMind
+Version: 0.1.1
+Summary: A custom Retrieval-Augmented Generation (RAG) framework for AI Agent applications.
+Home-page: https://github.com/Himanshu7921/RetrievalMind
+Author: Himanshu Singh
+Author-email: Himanshu Singh <himanshu@example.com>
+License: MIT
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: langchain
+Requires-Dist: chromadb
+Requires-Dist: sentence-transformers
+Requires-Dist: PyMuPDF
+
+# RetrievalMind
+
+**RetrievalMind** is an end-to-end **Retrieval-Augmented Generation (RAG)** pipeline framework designed to efficiently ingest, embed, store, and retrieve information from documents. This project serves as a personal learning and educational framework for implementing RAG functionalities in AI agents.
+
+---
+
+## Table of Contents
+
+* [Project Overview](#project-overview)
+* [Features](#features)
+* [Project Structure](#project-structure)
+* [Installation](#installation)
+* [Usage](#usage)
+* [Example Output](#example-output)
+* [Future Enhancements](#future-enhancements)
+* [License](#license)
+
+---
+
+## Project Overview
+
+RetrievalMind allows you to:
+
+1. **Ingest Documents** – Load PDFs or text files into a structured format for processing.
+2. **Generate Embeddings** – Convert textual content into vector representations using pre-trained models.
+3. **Vector Store Management** – Store and manage embeddings in ChromaDB for efficient retrieval.
+4. **Information Retrieval** – Retrieve top relevant content for user queries using a similarity-based search.
+
+This framework can be extended and reused for AI projects requiring **knowledge retrieval** or **RAG-based reasoning**, making it ideal for personal learning and experimentation.
+
+---
+
+## Features
+
+* Supports **PDF and text file ingestion** with customizable chunking.
+* Generates **semantic embeddings** using `all-miniLM-L6-v2` model.
+* **Persistent vector storage** with ChromaDB.
+* Flexible **retrieval pipeline** for natural language queries.
+* Modular structure for easy integration into AI agents and projects.
+
+---
+
+## Project Structure
+
+```
+RetrievalMind/
+├── data
+│   ├── pdf
+│   │   └── Company_Policy_Document.pdf
+│   ├── text_files
+│   │   ├── large_language_model.txt
+│   │   ├── machine_learning.txt
+│   │   └── python.txt
+│   └── vector_store
+│       ├── <UUID>/
+│       └── chroma.sqlite3
+├── main.py
+├── src
+│   ├── data_ingestion
+│   │   ├── pdf_ingestor.py
+│   │   └── text_ingestor.py
+│   ├── embeddings_manager
+│   │   └── embedding_manager.py
+│   ├── rag_retriver
+│   │   └── retriver.py
+│   └── vector_store_manager
+│       └── vector_store.py
+```
+
+* `data/pdf/` – Stores PDF documents for ingestion.
+* `data/text_files/` – Stores plain text documents.
+* `data/vector_store/` – ChromaDB storage for embeddings.
+* `src/` – Core modular code for ingestion, embeddings, retrieval, and vector store management.
+* `main.py` – Demonstrates the full RAG pipeline workflow.
+
+---
+
+## Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/Himanshu7921/RetrievalMind
+```
+
+2. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+*Dependencies include:* `langchain`, `chromadb`, `sentence-transformers`, `PyMuPDF`, etc.
+
+---
+
+## Usage
+
+```python
+from src.data_ingestion import PDFDocumentIngestor
+from src.embeddings_manager import EmbeddingManager
+from src.vector_store_manager import VectorStore
+from src.rag_retriver import Retrieval
+
+# Step 1: Load and chunk PDF
+pdf_ingestor = PDFDocumentIngestor(file_path="data/pdf/Company_Policy_Document.pdf", loader_type='mu')
+pdf_loader = pdf_ingestor.load_document()
+document_chunks = pdf_loader.load()
+chunk_texts = [chunk.page_content for chunk in document_chunks]
+
+# Step 2: Generate embeddings
+embedding_manager = EmbeddingManager()
+chunk_embeddings = embedding_manager.generate_embeddings(chunk_texts)
+
+# Step 3: Store chunks in vector store
+vector_store = VectorStore(collection_name="company_policy_collection", persist_directory="data/vector_store", document_type="PDF")
+vector_store.add_document(documents=document_chunks, embeddings=chunk_embeddings)
+
+# Step 4: Initialize retrieval pipeline
+retrieval_pipeline = Retrieval(vector_store=vector_store, embedding_manager=embedding_manager)
+query_text = "What is the termination policy of the company?"
+retrieved_results = retrieval_pipeline.retrieve(query=query_text, top_k=1, score_threshold=0)
+
+if retrieved_results:
+    print("Retrieved Content:\n", retrieved_results[0]['content'])
+else:
+    print("No relevant documents found.")
+```
+
+---
+
+## Example Output
+
+```
+[INFO] Vector store ready: 'company_policy_collection'
+[INFO] Current document count: 4
+[INFO] Successfully added 4 documents to 'company_policy_collection'.
+[INFO] Total documents in collection: 8
+Retrieved Document Content:
+7. Customer Support Policy
+7.1 Customer queries will be acknowledged within 24 hours of receipt.
+...
+8. Termination Policy
+8.1 Employment may be terminated due to misconduct, non-performance, or policy violation.
+...
+```
+
+---
+
+## Future Enhancements
+
+* Support for **multi-format document ingestion** (Word, CSV).
+* **Advanced query ranking** with hybrid embeddings + keyword search.
+* Integration with **LLMs** for generative responses using retrieved knowledge.
+* **Dashboard UI** for visualizing vector store and retrieval results.
+
+---
+
+## License
+
+This project is for **personal learning and educational purposes**. No commercial use permitted.
