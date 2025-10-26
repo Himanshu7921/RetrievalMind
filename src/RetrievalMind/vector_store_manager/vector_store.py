@@ -70,7 +70,7 @@ class VectorStore:
         except Exception as e:
             raise RuntimeError(f"Failed to initialize vector store: {e}")
 
-    def add_document(self, documents: list, embeddings: np.ndarray):
+    def add_document(self, documents: list, embeddings: np.ndarray, expected_dim: int = None):
         """
         Adds documents and their corresponding embeddings to the ChromaDB collection.
 
@@ -108,6 +108,14 @@ class VectorStore:
 
                 documents_text.append(getattr(doc, "page_content", ""))
                 embeddings_list.append(embedding.tolist())
+
+            # Basic runtime checks: ensure embeddings are consistent and optionally match expected_dim
+            if len(embeddings_list) > 0:
+                first_len = len(embeddings_list[0])
+                if not all(len(e) == first_len for e in embeddings_list):
+                    raise ValueError("Inconsistent embedding dimensions found in provided embeddings.")
+                if expected_dim is not None and first_len != expected_dim:
+                    raise ValueError(f"Embedding dimension mismatch: expected {expected_dim}, got {first_len}.")
 
             # Add data to ChromaDB collection
             self.collection.add(

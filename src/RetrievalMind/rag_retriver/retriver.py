@@ -66,7 +66,14 @@ class Retrieval:
                 distances = results['distances'][0]
 
                 for doc_id, document, metadata, distance in zip(ids, documents, metadatas, distances):
-                    similarity_score = 1 - distance  # Convert distance to similarity
+                    # Convert Chroma distance -> bounded similarity in (0,1]
+                    # Chroma returns a distance (Euclidean / metric). Map to a bounded similarity
+                    # so values remain comparable and do not become negative for distance > 1.
+                    try:
+                        similarity_score = 1.0 / (1.0 + float(distance))
+                    except Exception:
+                        # If distance cannot be parsed, mark as low similarity (0.0)
+                        similarity_score = 0.0
 
                     if similarity_score >= score_threshold:
                         retrieved_docs.append({

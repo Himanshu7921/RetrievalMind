@@ -66,7 +66,14 @@ class EmbeddingManager:
 
             # Encode text into embeddings
             embeddings = self.model.encode(text)
-            return np.array(embeddings)
+            arr = np.array(embeddings)
+            # Ensure 2D array for single-item input
+            if arr.ndim == 1:
+                arr = arr.reshape(1, -1)
+            # Normalize to unit length to make cosine-like comparisons stable.
+            norms = np.linalg.norm(arr, axis=1, keepdims=True)
+            norms[norms == 0] = 1.0
+            return arr / norms
 
         except ValueError as e:
             # Raise meaningful validation errors
