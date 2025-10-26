@@ -1,6 +1,6 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: RetrievalMind
-Version: 0.1.1
+Version: 0.1.2
 Summary: A custom Retrieval-Augmented Generation (RAG) framework for AI Agent applications.
 Home-page: https://github.com/Himanshu7921/RetrievalMind
 Author: Himanshu Singh
@@ -16,6 +16,10 @@ Requires-Dist: langchain
 Requires-Dist: chromadb
 Requires-Dist: sentence-transformers
 Requires-Dist: PyMuPDF
+Dynamic: author
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
 
 # RetrievalMind
 
@@ -161,6 +165,56 @@ Retrieved Document Content:
 8. Termination Policy
 8.1 Employment may be terminated due to misconduct, non-performance, or policy violation.
 ...
+```
+
+---
+## Installation
+
+### From PyPI
+
+Install the latest release directly from PyPI:
+
+```bash
+pip install RetrievalMind==0.1.1
+```
+
+*Dependencies include:* `langchain`, `chromadb`, `sentence-transformers`, `PyMuPDF`, etc.
+
+---
+
+## Usage
+
+Once installed, you can use RetrievalMind **as a package**:
+
+```python
+from RetrievalMind.data_ingestion import PDFDocumentIngestor
+from RetrievalMind.embeddings_manager import EmbeddingManager
+from RetrievalMind.vector_store_manager import VectorStore
+from RetrievalMind.rag_retriver import Retrieval
+
+# Step 1: Load and chunk PDF
+pdf_ingestor = PDFDocumentIngestor(file_path="data/pdf/Company_Policy_Document.pdf", loader_type='mu')
+pdf_loader = pdf_ingestor.load_document()
+document_chunks = pdf_loader.load()
+chunk_texts = [chunk.page_content for chunk in document_chunks]
+
+# Step 2: Generate embeddings
+embedding_manager = EmbeddingManager()
+chunk_embeddings = embedding_manager.generate_embeddings(chunk_texts)
+
+# Step 3: Store chunks in vector store
+vector_store = VectorStore(collection_name="company_policy_collection", persist_directory="data/vector_store", document_type="PDF")
+vector_store.add_document(documents=document_chunks, embeddings=chunk_embeddings)
+
+# Step 4: Initialize retrieval pipeline
+retrieval_pipeline = Retrieval(vector_store=vector_store, embedding_manager=embedding_manager)
+query_text = "What is the termination policy of the company?"
+retrieved_results = retrieval_pipeline.retrieve(query=query_text, top_k=1, score_threshold=0)
+
+if retrieved_results:
+    print("Retrieved Content:\n", retrieved_results[0]['content'])
+else:
+    print("No relevant documents found.")
 ```
 
 ---
