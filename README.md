@@ -152,7 +152,7 @@ Retrieved Document Content:
 Install the latest release directly from PyPI:
 
 ```bash
-pip install RetrievalMind==0.1.2
+pip install RetrievalMind==0.1.3
 ```
 
 *Dependencies include:* `langchain`, `chromadb`, `sentence-transformers`, `PyMuPDF`, etc.

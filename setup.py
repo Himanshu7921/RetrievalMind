@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="RetrievalMind",
-    version="0.1.2",
+    version="0.1.3",
     author="Himanshu Singh",
     author_email="himanshu@example.com",
     description="A custom Retrieval-Augmented Generation (RAG) framework for AI Agent applications.",
