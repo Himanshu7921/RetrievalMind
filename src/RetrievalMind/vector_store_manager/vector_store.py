@@ -93,8 +93,37 @@ class VectorStore:
 
             ids, metadatas, documents_text, embeddings_list = [], [], [], []
 
-            # Prepare ChromaDB records
+            # Attempt to retrieve existing documents from the collection to avoid duplicates.
+            existing_texts = set()
+            try:
+                # Best-effort: collection.get() may return a dict with 'documents'.
+                existing = self.collection.get()
+                if isinstance(existing, dict):
+                    docs = existing.get('documents') or []
+                    # docs might be a list-of-lists depending on API; flatten conservatively
+                    if docs and isinstance(docs[0], list):
+                        for sub in docs:
+                            existing_texts.update(sub)
+                    else:
+                        existing_texts.update(docs)
+                elif isinstance(existing, list):
+                    existing_texts.update(existing)
+            except Exception:
+                # If collection.get() is not supported or fails, fall back to adding everything.
+                existing_texts = set()
+
+            # Prepare ChromaDB records, skipping duplicates present in the store or duplicates within this batch
+            seen_in_batch = set()
+            skipped = 0
             for i, (doc, embedding) in enumerate(zip(documents, embeddings)):
+                content = getattr(doc, "page_content", "")
+                # Skip if identical content already exists in the collection or a duplicate in the same batch
+                if content in existing_texts or content in seen_in_batch:
+                    skipped += 1
+                    continue
+
+                seen_in_batch.add(content)
+
                 doc_id = f"doc_{uuid.uuid4().hex[:8]}_{i}"
                 ids.append(doc_id)
 
@@ -102,11 +131,11 @@ class VectorStore:
                 metadata = dict(getattr(doc, "metadata", {}))
                 metadata.update({
                     "doc_index": i,
-                    "content_length": len(getattr(doc, "page_content", "")),
+                    "content_length": len(content),
                 })
                 metadatas.append(metadata)
 
-                documents_text.append(getattr(doc, "page_content", ""))
+                documents_text.append(content)
                 embeddings_list.append(embedding.tolist())
 
             # Basic runtime checks: ensure embeddings are consistent and optionally match expected_dim
@@ -116,6 +145,10 @@ class VectorStore:
                     raise ValueError("Inconsistent embedding dimensions found in provided embeddings.")
                 if expected_dim is not None and first_len != expected_dim:
                     raise ValueError(f"Embedding dimension mismatch: expected {expected_dim}, got {first_len}.")
+            # If there are no new documents to add after deduplication, exit early.
+            if len(embeddings_list) == 0:
+                print(f"[INFO] No new documents to add to '{self.collection_name}'. Skipped {skipped} duplicates.")
+                return
 
             # Add data to ChromaDB collection
             self.collection.add(
@@ -124,8 +157,7 @@ class VectorStore:
                 metadatas=metadatas,
                 embeddings=embeddings_list
             )
-
-            print(f"[INFO] Successfully added {len(documents)} documents to '{self.collection_name}'.")
+            print(f"[INFO] Successfully added {len(documents_text)} documents to '{self.collection_name}'. Skipped {skipped} duplicates.")
             print(f"[INFO] Total documents in collection: {self.collection.count()}")
 
         except ValueError as e:
